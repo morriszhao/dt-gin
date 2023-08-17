@@ -9,6 +9,9 @@ import (
 
 func main() {
 
+	//读取配置
+	helper.InitConfig()
+
 	//mysql 数据库启动
 	models.InitMysql()
 

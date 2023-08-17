@@ -1,0 +1,13 @@
+app:
+  name: gin-im
+  mode: debug
+db:
+  mysql:
+    dsn: "root:123456@(127.0.0.1:3306)/tech-chat?charset=utf8"
+    showSql: true
+    maxConn: 10
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    db: 0
+    passwd:

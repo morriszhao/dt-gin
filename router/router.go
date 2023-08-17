@@ -3,11 +3,18 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"morris/im/controller"
+	"morris/im/helper"
 	"morris/im/middleware"
 	"net/http"
 )
 
+type appConfig struct {
+	mode string
+}
+
 func InitRouter() *gin.Engine {
+	config := initConfig()
+	gin.SetMode(config.mode)
 
 	r := gin.New()
 
@@ -40,4 +47,17 @@ func InitRouter() *gin.Engine {
 	r.GET("/chat", middleware.Auth(), chatController.Chat)
 
 	return r
+}
+
+func initConfig() appConfig {
+	subViper := helper.ViperConfig.Sub("app")
+	config := appConfig{
+		mode: subViper.GetString("mode"),
+	}
+
+	if "" == config.mode {
+		config.mode = "debug"
+	}
+
+	return config
 }

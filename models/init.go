@@ -5,30 +5,32 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"
 	"log"
+	"morris/im/helper"
 )
 
-const (
-	driveName = "mysql"
-	dsName    = "root:123456@(127.0.0.1:3306)/tech-chat?charset=utf8"
-	showSQL   = true
-	maxCon    = 10
-	NoError   = "no" //没有错误
-)
+type mysqlConfig struct {
+	driverName string
+	dsn        string
+	showSql    bool
+	maxConn    int
+}
 
 var DbEngin *xorm.Engine
 
 // InitMysql  数据库链接
 func InitMysql() {
-	err := errors.New(NoError)
-	DbEngin, err = xorm.NewEngine(driveName, dsName)
-	if nil != err && NoError != err.Error() {
+	mysqlConfig := initConfig()
+
+	err := errors.New("")
+	DbEngin, err = xorm.NewEngine(mysqlConfig.driverName, mysqlConfig.dsn)
+	if nil != err && "" != err.Error() {
 		log.Fatal(err.Error())
 	}
 
 	//是否显示SQL语句
-	DbEngin.ShowSQL(showSQL)
+	DbEngin.ShowSQL(mysqlConfig.showSql)
 	//数据库最大打开的连接数
-	DbEngin.SetMaxOpenConns(maxCon)
+	DbEngin.SetMaxOpenConns(mysqlConfig.maxConn)
 
 	//自动User
 	DbEngin.Sync2(new(UserModel))
@@ -38,5 +40,26 @@ func InitMysql() {
 	if err != nil {
 		log.Fatal("数据库连接失败：", err.Error())
 	}
+
+}
+
+func initConfig() mysqlConfig {
+
+	subViper := helper.ViperConfig.Sub("db.mysql")
+	config := mysqlConfig{
+		driverName: "mysql",
+		dsn:        subViper.GetString("dsn"),
+		showSql:    subViper.GetBool("showSql"),
+		maxConn:    subViper.GetInt("maxConn"),
+	}
+
+	if config.dsn == "" {
+		log.Fatal("请配置数据库dsn")
+	}
+	if config.maxConn == 0 {
+		config.maxConn = 10
+	}
+
+	return config
 
 }
