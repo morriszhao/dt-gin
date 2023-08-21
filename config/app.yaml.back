@@ -11,3 +11,5 @@ db:
     port: 6379
     db: 0
     passwd:
+log:
+    size: 100

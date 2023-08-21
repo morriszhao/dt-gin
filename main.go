@@ -12,6 +12,9 @@ func main() {
 	//读取配置
 	helper.InitConfig()
 
+	//日志启动
+	helper.InitLogger()
+
 	//mysql 数据库启动
 	models.InitMysql()
 
