@@ -24,7 +24,6 @@ var Logger *MyLogger
 type MyLogger struct {
 	infoLogger
 	errorLogger
-	config logConfig
 }
 
 func InitLogger() {
@@ -33,17 +32,18 @@ func InitLogger() {
 	errorFile := createErrorFile()
 
 	Logger = &MyLogger{
-		infoLogger: infoLogger{
+		infoLogger{
 			queue:        make(chan string, 1050),
 			logger:       log.New(infoFile, "", log.LstdFlags),
 			currencyFile: infoFile,
+			conf:         initLogConfig(),
 		},
-		errorLogger: errorLogger{
+		errorLogger{
 			queue:        make(chan string, 1050),
 			logger:       log.New(io.MultiWriter(errorFile, os.Stderr), "", log.LstdFlags),
 			currencyFile: errorFile,
+			conf:         initLogConfig(),
 		},
-		config: initLogConfig(),
 	}
 	go Logger.timerFlush()
 }
@@ -61,11 +61,10 @@ func (l *MyLogger) Write(message string) {
 }
 
 func (l *MyLogger) Error(message string) {
-
-}
-
-func (l *MyLogger) Panic(message string) {
-
+	l.errorLogger.queue <- message
+	if len(l.errorLogger.queue) > 1000 {
+		go l.errorLogger.flush()
+	}
 }
 
 func (l *MyLogger) timerFlush() {
@@ -135,6 +134,7 @@ type infoLogger struct {
 	locker       sync.Mutex
 	queue        chan string
 	logger       *log.Logger
+	conf         logConfig
 }
 
 func (il *infoLogger) flush() {
@@ -153,9 +153,12 @@ func (il *infoLogger) flush() {
 	}
 
 	//日志切割
-	if fileSize, _ := il.currencyFile.Stat(); fileSize.Size() > 20*1024 {
-		il.currencyFile.Close()
-		os.Rename(il.currencyFile.Name(), il.currencyFile.Name()+"."+time.Now().Format("150405"))
+	if fileSize, _ := il.currencyFile.Stat(); fileSize.Size() > int64(il.conf.maxSize*1024*1024) {
+		_ = il.currencyFile.Close()
+		err := os.Rename(il.currencyFile.Name(), il.currencyFile.Name()+"."+time.Now().Format("150405"))
+		if err != nil {
+			log.Println(err.Error())
+		}
 
 		//重新打开一个文件句柄、  应该比文件复制 然后清空原文件要快
 		newInfoFile := createInfoFile()
@@ -171,6 +174,7 @@ type errorLogger struct {
 	locker       sync.Mutex
 	queue        chan string
 	logger       *log.Logger
+	conf         logConfig
 }
 
 func (el *errorLogger) flush() {
@@ -187,9 +191,9 @@ func (el *errorLogger) flush() {
 		el.logger.Println(msg)
 	}
 
-	if fileSize, _ := el.currencyFile.Stat(); fileSize.Size() > 100*1024*1024*1024 {
-		el.currencyFile.Close()
-		os.Rename(el.currencyFile.Name(), el.currencyFile.Name()+"."+time.Now().Format("150405"))
+	if fileSize, _ := el.currencyFile.Stat(); fileSize.Size() > int64(el.conf.maxSize*1024*1024) {
+		_ = el.currencyFile.Close()
+		_ = os.Rename(el.currencyFile.Name(), el.currencyFile.Name()+"."+time.Now().Format("150405"))
 
 		//重新打开一个文件句柄、  应该比文件复制 然后清空原文件要快
 		newErrorFile := createErrorFile()
