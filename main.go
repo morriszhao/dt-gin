@@ -1,10 +1,11 @@
 package main
 
 import (
+	"github.com/fvbock/endless"
+	"log"
 	"morris/im/helper"
 	"morris/im/models"
 	"morris/im/router"
-	"net/http"
 )
 
 func main() {
@@ -22,13 +23,19 @@ func main() {
 	helper.InitRedis()
 
 	//路由启动
-	router := router.InitRouter()
+	r := router.InitRouter()
 
-	//启动服务
-	httpserver := http.Server{
-		Addr:    ":8000",
-		Handler: router,
+	/**
+	使用endless 平滑重启  (代码需要从新打包  同名文件)
+	默认 endless 会监听一下信号
+	syscall.SIGHUP，syscall.SIGUSR1，syscall.SIGUSR2，syscall.SIGINT，syscall.SIGTERM和syscall.SIGTSTP
+	接收到 SIGHUP 信号将触发`fork/restart` 实现优雅重启（kill -1 pid会发送SIGHUP信号）
+	接收到 syscall.SIGINT或syscall.SIGTERM 信号将触发优雅退出   （服务端收到退出信号不立马退出、等当前处理中的请求全部处理完成在退出）
+	*/
+
+	if err := endless.ListenAndServe(":8000", r); err != nil {
+		log.Fatal("listen:", err.Error())
 	}
 
-	httpserver.ListenAndServe()
+	log.Println("server exiting.....")
 }

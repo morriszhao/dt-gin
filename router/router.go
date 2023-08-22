@@ -6,6 +6,7 @@ import (
 	"morris/im/helper"
 	"morris/im/middleware"
 	"net/http"
+	"time"
 )
 
 type appConfig struct {
@@ -23,7 +24,14 @@ func InitRouter() *gin.Engine {
 
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"name": "lisa",
+			"name": "restart",
+		})
+	})
+
+	r.GET("/restart", func(c *gin.Context) {
+		time.Sleep(time.Second * 10)
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "restart success !!!",
 		})
 	})
 
