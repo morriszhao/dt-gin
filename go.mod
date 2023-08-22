@@ -4,11 +4,13 @@ go 1.18
 
 require (
 	github.com/davecgh/go-spew v1.1.1
+	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/go-xorm/xorm v0.7.9
 	github.com/gorilla/websocket v1.5.0
 	github.com/redis/go-redis/v9 v9.0.5
+	github.com/robfig/cron v1.2.0
 	github.com/spf13/viper v1.16.0
 )
 
@@ -19,7 +21,6 @@ require (
 	github.com/chenzhuoyu/iasm v0.9.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
-	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
@@ -36,7 +37,6 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.9 // indirect
-	github.com/robfig/cron v1.2.0 // indirect
 	github.com/spf13/afero v1.9.5 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
