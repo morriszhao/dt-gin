@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/fvbock/endless"
 	"log"
+	"morris/im/crontab"
 	"morris/im/helper"
 	"morris/im/models"
 	"morris/im/router"
@@ -21,6 +22,9 @@ func main() {
 
 	//redis 缓存启动
 	helper.InitRedis()
+
+	//定时任务启动
+	crontab.InitCronTab()
 
 	//路由启动
 	r := router.InitRouter()
